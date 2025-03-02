@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Matemática</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        #question {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jogo de Matemática</h1>
+    <div id="question"></div>
+    <input type="number" id="answer" placeholder="Digite sua resposta" onpaste="return false">
+    <button id="submit">Responder</button>
+    <div id="timer">Tempo: 10s</div>
+    <div id="score">Pontuação: 0</div>
+    <div id="feedback"></div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const questionElement = document.getElementById("question");
+            const answerInput = document.getElementById("answer");
+            const submitButton = document.getElementById("submit");
+            const feedbackElement = document.getElementById("feedback");
+            const scoreElement = document.getElementById("score");
+            let score = 0;
+            let timeLeft = 10;
+            let difficulty = 1;
+            let timer;
+            let correctAnswer;
+
+            function generateQuestion() {
+                const num1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+                const num2 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+                const operations = ["+", "-", "*"];
+                const operation = operations[Math.floor(Math.random() * operations.length)];
+                correctAnswer = eval(`${num1} ${operation} ${num2}`);
+                questionElement.textContent = `${num1} ${operation} ${num2} = ?`;
+                answerInput.value = "";
+                startTimer();
+            }
+
+            function startTimer() {
+                clearInterval(timer);
+                timeLeft = 10;
+                updateTimerDisplay();
+                timer = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft === 0) {
+                        clearInterval(timer);
+                        feedbackElement.textContent = "Tempo esgotado! Tente novamente.";
+                        feedbackElement.style.color = "red";
+                        setTimeout(generateQuestion, 2000);
+                    }
+                }, 1000);
+            }
+
+            function updateTimerDisplay() {
+                document.getElementById("timer").textContent = `Tempo: ${timeLeft}s`;
+            }
+
+            function checkAnswer() {
+                clearInterval(timer);
+                const userAnswer = parseInt(answerInput.value, 10);
+                if (userAnswer === correctAnswer) {
+                    score++;
+                    difficulty += 0.2;
+                    feedbackElement.textContent = "Correto!";
+                    feedbackElement.style.color = "green";
+                } else {
+                    feedbackElement.textContent = "Errado!";
+                    feedbackElement.style.color = "red";
+                }
+                scoreElement.textContent = `Pontuação: ${score}`;
+                setTimeout(generateQuestion, 2000);
+            }
+
+            submitButton.addEventListener("click", checkAnswer);
+            answerInput.addEventListener("keypress", (event) => {
+                if (event.key === "Enter") {
+                    checkAnswer();
+                }
+            });
+
+            generateQuestion();
+        });
+    </script>
+</body>
+</html>
